@@ -8,16 +8,17 @@ import math
 import random
 import importlib
 import numpy as np
-import networkx as nx
+# import networkx as nx
 from collections import defaultdict
-from whatthelang import WhatTheLang
+# from whatthelang import WhatTheLang
 
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 
-if importlib.util.find_spec('fastText') != None:
-    import fastText
-else:
-    import fasttext as fastText
+# if importlib.util.find_spec('fastText') != None:
+#     import fastText
+# else:
+#     import fasttext as fastText
+import fasttext as fastText
 
 import utils
 
@@ -64,6 +65,9 @@ class FastTextWebTableModel:
 
     def save_model(self, path):
         self.model.save_model(path)
+
+    def get_dimension(self):
+        return self.model.get_dimension()
 
     def get_header_vector(self, term):
         if len(term) == 0:
@@ -160,7 +164,7 @@ class FastTextWebTableModel:
 
     def _create_row_walks(self, config, append=False, size=float('inf')):
         BATCH_SIZE = 1000
-        wtl = WhatTheLang()
+        # wtl = WhatTheLang()
         f = gzip.open(config['dump_path'], 'rt', encoding='utf-8')
         meta_data = f.readline()
         line = f.readline()
@@ -179,7 +183,7 @@ class FastTextWebTableModel:
             except:
                 print('Can not parse:', count, line)
                 line = f.readline()
-            walks += self._create_row_walks_from_table(config, data, wtl)
+            walks += self._create_row_walks_from_table(config, data)
             line = f.readline()
             if len(walks) > BATCH_SIZE:
                 for walk_line in walks:
@@ -191,18 +195,18 @@ class FastTextWebTableModel:
         f_out.close()
         return
 
-    def _create_row_walks_from_table(self, config, table, wtl):
+    def _create_row_walks_from_table(self, config, table, wtl=None):
         if table['headerPosition'] != 'FIRST_COLUMN':
             table['relation'] = list(zip(*table['relation']))
         walks = []
         if len([x for x in table['relation'][0] if (x != None) and (len(x) > 0)]) < config['min_columns']:
             return []
-        if config['lang_filter'] != 'none':
-            text = ' '.join([' '.join([r for r in row if r != None]) for i, row in enumerate(
-                table['relation']) if i < float(config['max_rows'])])
-            lang = wtl.predict_lang(text)
-            if lang != config['lang_filter']:
-                return []
+        # if config['lang_filter'] != 'none':
+        #     text = ' '.join([' '.join([r for r in row if r != None]) for i, row in enumerate(
+        #         table['relation']) if i < float(config['max_rows'])])
+            # lang = wtl.predict_lang(text)
+            # if lang != config['lang_filter']:
+            #     return []
         if config['walk_type'].lower() == 'base':
             for row in table['relation']:
                 walks.append(
