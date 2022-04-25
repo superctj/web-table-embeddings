@@ -75,8 +75,16 @@ class FastTextWebTableModel:
         return self.model.get_word_vector(self.encode_header(term))
 
     def get_data_vector(self, term):
-        if len(term) == 0:
+        if type(term) != str or len(term) == 0: # there is a hddien nan value in the table
             term = '_'
+        # try:
+        #     if len(term) == 0:
+        #         term = '_'
+        # except TypeError:
+        #     print("\n ======")
+        #     print(term)
+        #     print("======\n")
+        #     raise TypeError
         return self.model.get_word_vector(self.encode_data(term))
 
     def get_plain_vector(self, term):
